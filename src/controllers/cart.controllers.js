@@ -22,3 +22,31 @@ export const addToCart = async (req, res, next) => {
         next(err); //error handler
     }
 };
+
+// Update the quantity of a specific cart item
+export const updateCartItem = async (req, res, next) => {
+    try {
+
+        const {id} = req.params
+
+        // Check for valid objectId
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({error: 'Invalid cart item ID'})
+        }
+
+        // Find cart item by ID and update quantity
+        const updated = await Cart.findByIdAndUpdate(
+            id,
+            {quantity: req.body.quantity},
+            {new: true}  // Return updated document
+        );
+
+        if (!updated) {
+            return res.status(404).json({error: 'Cart item not found'});
+        }
+
+        res.json(updated);
+    } catch (err) {
+        next(err);
+    }
+};
