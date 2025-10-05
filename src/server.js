@@ -3,6 +3,8 @@ import connectDB from './DB/database.js';
 import authRoutes from './routes/auth.routes.js';
 import productRoutes from './routes/product.routes.js';
 import cartRoutes from './routes/cart.routes.js';
+import {notFound} from "./middlewares/errorHandler.middlewares.js";
+import {errorHandler} from "./middlewares/errorHandler.middlewares.js";
 
 
 import dotenv from "dotenv";
