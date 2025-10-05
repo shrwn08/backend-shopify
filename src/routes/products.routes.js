@@ -1,12 +1,8 @@
 import express from 'express';
-
-
+import req from "express/lib/request.js";
 
 const router = express.Router();
 
+router.get("/", (req,res)=>{});
 
-//Posting /auth/register
-router.post('/register', (req, res) => {});
-
-//Posting /auth/login
-router.post('/login', (req, res) => {});
+router.get("/:id", (req,res)=>{});
