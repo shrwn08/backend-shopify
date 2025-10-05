@@ -13,3 +13,15 @@ export const getAllProducts = async (req, res, next) => {
         });
     }
 };
+
+export const getProductById = async (req, res, next) => {
+    try {
+        const product = await Product.findById(req.params.id); // Look up product by ID
+
+        //Handle not found
+        if (!product) return res.status(404).json({ error: "Product not found" });
+        res.json(product);
+    } catch (err) {
+        next(err);
+    }
+};
