@@ -1,6 +1,10 @@
 import express from 'express';
 import connectDB from './DB/database.js';
-import authRoutes from './routes/auth.js';
+import authRoutes from './routes/auth.routes.js';
+import productRoutes from './routes/product.routes.js';
+import cartRoutes from './routes/cart.routes.js';
+
+
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -17,8 +21,8 @@ connectDB();
 //localhost:8080/api/products
 //localhost:8080/api/cart
 
-app.use('/products', )
-app.use('/cart', )
+app.use('/products', productRoutes);
+app.use('/cart', cartRoutes);
 app.use('/api/auth', authRoutes);
 
 
