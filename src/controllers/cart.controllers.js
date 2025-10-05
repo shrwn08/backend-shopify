@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import Cart from "../models/cart.models.js";
 
 // Add a product to the cart or increase quantity if already exists
 export const addToCart = async (req, res, next) => {
@@ -71,7 +72,7 @@ export const removeFromCart = async (req, res, next) => {
         res.json({ message: 'Item removed from cart' });
 
     } catch (err) {
-        next(err); // Handle errors
+        next(err);
     }
 };
 
