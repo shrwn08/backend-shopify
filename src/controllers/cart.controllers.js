@@ -50,3 +50,28 @@ export const updateCartItem = async (req, res, next) => {
         next(err);
     }
 };
+
+// Remove an item from the cart
+export const removeFromCart = async (req, res, next) => {
+    try {
+        // Delete cart item by ID
+        const { id } = req.params;
+
+        // Check for valid ObjectId
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ error: 'Invalid cart item ID' });
+        }
+
+        const deleted = await Cart.findByIdAndDelete(id);
+
+        if (!deleted) {
+            return res.status(404).json({ error: 'Cart item not found' });
+        }
+
+        res.json({ message: 'Item removed from cart' });
+
+    } catch (err) {
+        next(err); // Handle errors
+    }
+};
+
