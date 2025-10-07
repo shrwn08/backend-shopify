@@ -55,7 +55,7 @@ export const addToCart = async (req, res, next) => {
 // Increase quantity by 1
 export const increaseQuantity = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { id } = req.body;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ error: 'Invalid cart item ID' });
@@ -80,7 +80,7 @@ export const increaseQuantity = async (req, res, next) => {
 // Decrease quantity by 1
 export const decreaseQuantity = async (req, res, next) => {
     try {
-        const { id } = req.params;
+        const { id } = req.body;
 
         if (!mongoose.Types.ObjectId.isValid(id)) {
             return res.status(400).json({ error: 'Invalid cart item ID' });
