@@ -11,8 +11,8 @@ const router = express.Router();
 
 router.post('/add_to_cart', verifyToken,addToCart);
 
-router.put("/increase_quantity/:id",verifyToken ,increaseQuantity);
-router.put("/decrease_quantity/:id",verifyToken ,decreaseQuantity);
+router.put("/increase_quantity/",verifyToken ,increaseQuantity);
+router.put("/decrease_quantity/",verifyToken ,decreaseQuantity);
 router.delete("/add_to_cart/:id", verifyToken,removeFromCart);
 
 export default router;
