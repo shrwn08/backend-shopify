@@ -27,6 +27,8 @@ const productSeed = async () => {
                 name: item.title.trim(),
                 price: item.price,
                 description: item.description || "",
+                rating: item.rating,
+
                 stock: item.stock > 0 ? item.stock : 10,
                 thumbnail:
                     item.thumbnail || "https://via.placeholder.com/150?text=No+Image",

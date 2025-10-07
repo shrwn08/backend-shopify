@@ -20,33 +20,86 @@ export const addToCart = async (req, res, next) => {
 
         res.json({ message: "Item added to cart" });
     } catch (err) {
-        next(err); //error handler
+        next(err);
     }
 };
 
 // Update the quantity of a specific cart item
-export const updateCartItem = async (req, res, next) => {
+// export const updateCartItem = async (req, res, next) => {
+//     try {
+//
+//         const {id} = req.params
+//
+//         // Check for valid objectId
+//         if (!mongoose.Types.ObjectId.isValid(id)) {
+//             return res.status(400).json({error: 'Invalid cart item ID'})
+//         }
+//
+//         // Find cart item by ID and update quantity
+//         const updated = await Cart.findByIdAndUpdate(
+//             id,
+//             {quantity: req.body.quantity},
+//             {new: true}  // Return updated document
+//         );
+//
+//         if (!updated) {
+//             return res.status(404).json({error: 'Cart item not found'});
+//         }
+//
+//         res.json(updated);
+//     } catch (err) {
+//         next(err);
+//     }
+// };
+
+// Increase quantity by 1
+export const increaseQuantity = async (req, res, next) => {
     try {
+        const { id } = req.params;
 
-        const {id} = req.params
-
-        // Check for valid objectId
         if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({error: 'Invalid cart item ID'})
+            return res.status(400).json({ error: 'Invalid cart item ID' });
         }
 
-        // Find cart item by ID and update quantity
         const updated = await Cart.findByIdAndUpdate(
             id,
-            {quantity: req.body.quantity},
-            {new: true}  // Return updated document
+            { $inc: { quantity: 1 } }, // Increment quantity by 1
+            { new: true }
         );
 
         if (!updated) {
-            return res.status(404).json({error: 'Cart item not found'});
+            return res.status(404).json({ error: 'Cart item not found' });
         }
 
         res.json(updated);
+    } catch (err) {
+        next(err);
+    }
+};
+
+// Decrease quantity by 1
+export const decreaseQuantity = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        if (!mongoose.Types.ObjectId.isValid(id)) {
+            return res.status(400).json({ error: 'Invalid cart item ID' });
+        }
+
+        // Find current cart item
+        const cartItem = await Cart.findById(id);
+        if (!cartItem) {
+            return res.status(404).json({ error: 'Cart item not found' });
+        }
+
+        if (cartItem.quantity <= 1) {
+            return res.status(400).json({ error: 'Quantity cannot be less than 1' });
+        }
+
+        cartItem.quantity -= 1;
+        await cartItem.save();
+
+        res.json(cartItem);
     } catch (err) {
         next(err);
     }

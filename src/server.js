@@ -1,10 +1,11 @@
 import express from 'express';
 import connectDB from './DB/database.js';
 import authRoutes from './routes/auth.routes.js';
-import productRoutes from './routes/product.routes.js';
+import productRoutes from './routes/products.routes.js';
 import cartRoutes from './routes/cart.routes.js';
 import {notFound} from "./middlewares/errorHandler.middlewares.js";
 import {errorHandler} from "./middlewares/errorHandler.middlewares.js";
+import cors from "cors";
 
 
 import dotenv from "dotenv";
@@ -15,16 +16,18 @@ dotenv.config();
 const app = express();
 const PORT =process.env.PORT || 8080;
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors({origin: "*"}));
 
 connectDB();
 
-//localhost:8080/api/auth/signup
-//localhost:8080/api/auth/signin
+//http://localhost:8080/api/auth/register
+//localhost:8080/api/auth/login
 //localhost:8080/api/products
-//localhost:8080/api/cart
+//localhost:8080/api/add_to_cart
 
-app.use('/products', productRoutes);
-app.use('/cart', cartRoutes);
+app.use('/api', productRoutes);
+app.use('/api', cartRoutes);
 app.use('/api/auth', authRoutes);
 
 
