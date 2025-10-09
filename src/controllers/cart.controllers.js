@@ -5,7 +5,10 @@ import Cart from "../models/cart.models.js";
 // Fetch all cart items for the logged-in user
 export const getProductCart = async (req, res, next) => {
     try {
-        const userId = req.user.id; // set by verifyToken middleware
+        const userId = req.user; // set by verifyToken middleware
+
+
+        console.log(req);
 
         // Fetch cart items for this user
         const cartItems = await Cart.find({ userId }).populate('productId'); // optional: include product details
@@ -20,6 +23,8 @@ export const getProductCart = async (req, res, next) => {
 export const addToCart = async (req, res, next) => {
     try {
         const { productId, quantity } = req.body;
+
+        console.log(req.body)
 
         // Check if the item already exists in the user's cart
         const existing = await Cart.findOne({ userId: req.userId, productId });
