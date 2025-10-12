@@ -5,13 +5,10 @@ import Cart from "../models/cart.models.js";
 // Fetch all cart items for the logged-in user
 export const getProductCart = async (req, res, next) => {
     try {
-        const userId = req.user; // set by verifyToken middleware
-
-
-        console.log(req);
+        const userId = req.userId; // set by verifyToken middleware
 
         // Fetch cart items for this user
-        const cartItems = await Cart.find({ userId }).populate('productId'); // optional: include product details
+        const cartItems = await Cart.find({ userId }).populate('productId');
 
         res.json(cartItems);
     } catch (err) {
@@ -24,7 +21,7 @@ export const addToCart = async (req, res, next) => {
     try {
         const { productId, quantity } = req.body;
 
-        console.log(req.body)
+        console.log(req.userId);
 
         // Check if the item already exists in the user's cart
         const existing = await Cart.findOne({ userId: req.userId, productId });
@@ -35,10 +32,11 @@ export const addToCart = async (req, res, next) => {
             await existing.save();
         } else {
             // if not. create new cart item
-            await Cart.create({ userId: req.userId, productId, quantity });
+        await Cart.create({ userId: req.userId, productId, quantity });
         }
 
-        res.json({ message: "Item added to cart" });
+        res.json({
+            message: "Item added to cart" });
     } catch (err) {
         next(err);
     }
@@ -59,12 +57,14 @@ export const increaseQuantity = async (req, res, next) => {
             { $inc: { quantity: 1 } }, // Increment quantity by 1
             { new: true }
         );
-
+        console.log(updated);
         if (!updated) {
             return res.status(404).json({ error: 'Cart item not found' });
         }
 
-        res.json(updated);
+        const cartItems = await Cart.find({ userId: updated.userId }).populate("productId");
+
+        res.json(cartItems);
     } catch (err) {
         next(err);
     }
@@ -92,7 +92,8 @@ export const decreaseQuantity = async (req, res, next) => {
         cartItem.quantity -= 1;
         await cartItem.save();
 
-        res.json(cartItem);
+        const cartItems = await Cart.find({ userId: cartItem.userId }).populate("productId");
+        res.json(cartItems);
     } catch (err) {
         next(err);
     }

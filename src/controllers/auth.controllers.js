@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import User from "../models/user.models.js";
+import req from "express/lib/request.js";
 
 
 // Register a new user
@@ -85,5 +86,10 @@ export const loginUser = async (req, res, next) => {
         next(err);
     }
 };
+
+export const updateAddress = async ()=>{
+    const {id} = req.userId;
+    console.log(id);
+}
 
 
