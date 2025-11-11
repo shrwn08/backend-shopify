@@ -22,11 +22,7 @@ app.use(cors());
 
 connectDB();
 
-//http://localhost:8080/api/auth/register
-//localhost:8080/api/auth/login
-//localhost:8080/api/products
-//localhost:8080/api/add_to_cart
-//http://localhost:8080/api/
+
 
 app.use('/api', productRoutes);
 app.use('/api', cartRoutes);

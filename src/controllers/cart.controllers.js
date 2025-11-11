@@ -1,125 +1,130 @@
 import mongoose from "mongoose";
 import Cart from "../models/cart.models.js";
 
-
 // Fetch all cart items for the logged-in user
 export const getProductCart = async (req, res, next) => {
-    try {
-        const userId = req.userId; // set by verifyToken middleware
+  try {
+    const userId = req.userId; // set by verifyToken middleware
 
-        // Fetch cart items for this user
-        const cartItems = await Cart.find({ userId }).populate('productId');
+    // Fetch cart items for this user
+    const cartItems = await Cart.find({ userId }).populate("productId");
 
-        res.json(cartItems);
-    } catch (err) {
-        next(err);
-    }
+    res.json(cartItems);
+  } catch (err) {
+    next(err);
+  }
 };
 
 // Add a product to the cart or increase quantity if already exists
 export const addToCart = async (req, res, next) => {
-    try {
-        const { productId, quantity } = req.body;
+  try {
+    const { productId, quantity } = req.body;
 
-        console.log(req.userId);
-
-        // Check if the item already exists in the user's cart
-        const existing = await Cart.findOne({ userId: req.userId, productId });
-
-        if (existing) {
-            // Increase quantity if exists
-            existing.quantity += quantity;
-            await existing.save();
-        } else {
-            // if not. create new cart item
-        await Cart.create({ userId: req.userId, productId, quantity });
-        }
-
-        res.json({
-            message: "Item added to cart" });
-    } catch (err) {
-        next(err);
+    
+    if (!productId) {
+      return res.status(400).json({ error: "Product ID is required" });
     }
+
+    if (!quantity || quantity < 1) {
+      return res.status(400).json({ error: "Valid quantity is required" });
+    }
+
+    // Check if the item already exists in the user's cart
+    const existing = await Cart.findOne({ userId: req.userId, productId });
+
+    if (existing) {
+      // Increase quantity if exists
+      existing.quantity += quantity;
+      await existing.save();
+    } else {
+      // if not. create new cart item
+      await Cart.create({ userId: req.userId, productId, quantity });
+    }
+
+    res.json({
+      message: "Item added to cart",
+    });
+  } catch (err) {
+    next(err);
+  }
 };
 
 
-// Increase quantity by 1
-export const increaseQuantity = async (req, res, next) => {
-    try {
-        const { id } = req.body;
+export const updateQuantity = async (req, res, next) => {
+  try {
+    const { id, quantity } = req.body;
 
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ error: 'Invalid cart item ID' });
-        }
+    if (quantity < 1)
+      return res.status(400).json({ error: "Quantity cannot be less than 1" });
 
-        const updated = await Cart.findByIdAndUpdate(
-            id,
-            { $inc: { quantity: 1 } }, // Increment quantity by 1
-            { new: true }
-        );
-        console.log(updated);
-        if (!updated) {
-            return res.status(404).json({ error: 'Cart item not found' });
-        }
-
-        const cartItems = await Cart.find({ userId: updated.userId }).populate("productId");
-
-        res.json(cartItems);
-    } catch (err) {
-        next(err);
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "Invalid cart item ID" });
     }
-};
 
-// Decrease quantity by 1
-export const decreaseQuantity = async (req, res, next) => {
-    try {
-        const { id } = req.body;
+    // Find and update the specific cart item
+    const updatedItem = await Cart.findByIdAndUpdate(
+      id,
+      { quantity },
+      { new: true } // Return the updated document
+    ).populate("productId");
 
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ error: 'Invalid cart item ID' });
-        }
-
-        // Find current cart item
-        const cartItem = await Cart.findById(id);
-        if (!cartItem) {
-            return res.status(404).json({ error: 'Cart item not found' });
-        }
-
-        if (cartItem.quantity <= 1) {
-            return res.status(400).json({ error: 'Quantity cannot be less than 1' });
-        }
-
-        cartItem.quantity -= 1;
-        await cartItem.save();
-
-        const cartItems = await Cart.find({ userId: cartItem.userId }).populate("productId");
-        res.json(cartItems);
-    } catch (err) {
-        next(err);
+    if (!updatedItem) {
+      return res.status(404).json({ error: "Cart item not found" });
     }
+
+    // Fetch updated cart items for the user
+    const cartItems = await Cart.find({ userId: updatedItem.userId }).populate(
+      "productId"
+    );
+
+    res.json(cartItems);
+  } catch (err) {
+    next(err);
+  }
 };
 
 // Remove an item from the cart
 export const removeFromCart = async (req, res, next) => {
-    try {
-        // Delete cart item by ID
-        const { id } = req.params;
+  try {
+    // Delete cart item by ID
+    const { id } = req.params;
 
-        // Check for valid ObjectId
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            return res.status(400).json({ error: 'Invalid cart item ID' });
-        }
-
-        const deleted = await Cart.findByIdAndDelete(id);
-
-        if (!deleted) {
-            return res.status(404).json({ error: 'Cart item not found' });
-        }
-
-        res.json({ message: 'Item removed from cart' });
-
-    } catch (err) {
-        next(err);
+    // Check for valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ error: "Invalid cart item ID" });
     }
+
+    const deleted = await Cart.findByIdAndDelete(id);
+
+    if (!deleted) {
+      return res.status(404).json({ error: "Cart item not found" });
+    }
+
+    res.json({ message: "Item removed from cart" });
+  } catch (err) {
+    next(err);
+  }
 };
 
+export const clearCart = async (req, res) =>{
+  try {
+      const userId = req.userId;
+
+console.log(userId);
+
+       if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+
+      const result = await Cart.deleteMany({userId});
+
+      
+
+      return res.status(200).json({
+      message: "Cart cleared successfully",
+      deletedCount: result.deletedCount,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server Error" });
+  }
+}

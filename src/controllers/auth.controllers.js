@@ -87,9 +87,38 @@ export const loginUser = async (req, res, next) => {
     }
 };
 
-export const updateAddress = async ()=>{
-    const {id} = req.userId;
-    console.log(id);
-}
+export const updateAddress = async (req, res, next)=>{
+   
+   try {
+    const userId = req.userId; // FIXED: Was const {id} = req.userId
+    const { address } = req.body;
 
+    if (!address) {
+      return res.status(400).json({ error: "Address is required" });
+    }
+
+    if (address.length < 20) {
+      return res.status(400).json({
+        error: "Address must be at least 20 characters long",
+      });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { address },
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({
+      message: "Address updated successfully",
+      user: updatedUser,
+    });
+  } catch (err) {
+    next(err);
+  }
+}
 
