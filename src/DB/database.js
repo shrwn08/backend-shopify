@@ -32,15 +32,16 @@ const productSeed = async () => {
                 stock: item.stock > 0 ? item.stock : 10,
                 thumbnail:
                     item.thumbnail || "https://via.placeholder.com/150?text=No+Image",
+                     category: item.category || "general"
             });
 
             // console.log(`Imported: ${item.title}`);
             importedCount++;
         }
 
-        // console.log(
-        //     `\nSummary:\n- Imported: ${importedCount}\n- Skipped: ${skippedCount}`
-        // );
+        console.log(
+            `\nSummary:\n- Imported: ${importedCount}\n- Skipped: ${skippedCount}`
+        );
     } catch (err) {
         console.error("Error importing:", err.message);
     }
